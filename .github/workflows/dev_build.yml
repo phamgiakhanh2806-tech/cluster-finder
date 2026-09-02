@@ -22,7 +22,11 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
-
+- name: Upload JAR
+  uses: actions/upload-artifact@v4
+  with:
+    name: cluster-finder-jar
+    path: build/libs/*.jar
       - name: Release
         uses: softprops/action-gh-release@v3
         with:
