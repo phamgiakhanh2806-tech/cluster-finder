@@ -1,75 +1,23 @@
 plugins {
-    alias(libs.plugins.fabric.loom)
+    // Với Fabric Loom dành cho Minecraft 1.21.11 trở về trước
+    id 'net.fabricmc.fabric-loom-remap' version '1.9.2'
+    id 'maven-publish'
 }
 
-val archivesBaseName = providers.gradleProperty("archives_base_name").get()
-val mavenGroup = providers.gradleProperty("maven_group").get()
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
 
-base {
-    archivesName = archivesBaseName
-    version = libs.versions.mod.version.get()
-    group = mavenGroup
-}
-
-repositories {
-    maven {
-        name = "meteor-maven"
-        url = uri("https://maven.meteordev.org/releases")
-    }
-
-    maven {
-        name = "meteor-maven-snapshots"
-        url = uri("https://maven.meteordev.org/snapshots")
-    }
+// Bật --enable-preview để sửa triệt để lỗi "unnamed variables"
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+    it.options.compilerArgs.add('--enable-preview')
 }
 
 dependencies {
-    minecraft(libs.minecraft)
-    mappings(loom.officialMojangMappings())
-
-    modImplementation(libs.fabric.loader)
-    modImplementation(libs.meteor.client)
-}
-
-java {
-    toolchain {
-        languageVersion.set(
-            JavaLanguageVersion.of(libs.versions.jdk.get().toInt())
-        )
-    }
-}
-
-tasks {
-    processResources {
-        val propertyMap = mapOf(
-            "version" to project.version,
-            "minecraft_version" to libs.versions.minecraft.get(),
-            "jdk_version" to libs.versions.jdk.get()
-        )
-
-        inputs.properties(propertyMap)
-
-        filesMatching("fabric.mod.json") {
-            expand(propertyMap)
-        }
-    }
-
-    jar {
-        inputs.property("archivesName", archivesBaseName)
-
-        from("LICENSE") {
-            rename {
-                "${it}_${archivesBaseName}"
-            }
-        }
-    }
-
-    withType<JavaCompile>().configureEach {
-        options.compilerArgs.addAll(
-            listOf(
-                "-Xlint:deprecation",
-                "-Xlint:unchecked"
-            )
-        )
-    }
+    minecraft "com.mojang:minecraft:1.21.11"
+    mappings "net.fabricmc:yarn:1.21.11+build.1:v2"
+    modImplementation "net.fabricmc:fabric-loader:0.16.10"
+    
+    // Thêm Fabric API phiên bản 1.21.11 nếu project của bạn có dùng
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.141.2+1.21.11"
 }
