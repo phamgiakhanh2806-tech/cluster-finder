@@ -30,8 +30,7 @@ dependencies {
     // Meteor
     implementation(libs.meteor.client)
 }
-mappings(loom.officialMojangMappings())
-java {
+
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(libs.versions.jdk.get().toInt()))
     }
